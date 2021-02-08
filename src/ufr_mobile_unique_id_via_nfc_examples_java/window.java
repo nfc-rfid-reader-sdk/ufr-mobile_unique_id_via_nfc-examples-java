@@ -258,29 +258,6 @@ public class window {
 
 	// ------------------------------------------------------------------------------
 
-	private String ByteArrayToString(byte[] ch_array) {
-		StringBuilder strB = new StringBuilder();
-
-		for (int i = 0; i < ch_array.length; i++) {
-			if (ch_array[i] == 0)
-				break;
-
-			strB.append((char) ch_array[i]);
-		}
-
-		return strB.toString();
-	}
-
-	public static byte[] stringToBytesASCII(String str) {
-		byte[] b = new byte[str.length()];
-		for (int i = 0; i < b.length; i++) {
-			b[i] = (byte) str.charAt(i);
-		}
-		return b;
-	}
-
-	// ------------------------------------------------------------------------------
-
 	private void btnReaderOpenActionPerformed(java.awt.event.ActionEvent evt) {
 
 		int status = 0x54;
@@ -334,8 +311,8 @@ public class window {
 					}
 
 					ByteByReference card_type = new ByteByReference((byte) 0);
-					byte[] rapdu = new byte[128];
-					PointerByReference test = new PointerByReference();
+					
+					PointerByReference rapdu_ptr = new PointerByReference();
 
 					String UIDStr = "";
 
@@ -352,7 +329,7 @@ public class window {
 							return;
 						}
 
-						status = ufr.APDUHexStrTransceive("00 A4 04 00 06 F00102030405 00", test);
+						status = ufr.APDUHexStrTransceive("00 A4 04 00 06 F00102030406 00", rapdu_ptr);
 						if (status != 0) {
 							System.out.println(" Error occurred while sending APDU command, uFR status is: "
 									+ ufr.UFR_Status2String(status));
@@ -361,7 +338,7 @@ public class window {
 							status = ufr.s_block_deselect((byte) 100);
 							return;
 						} else {
-							String rapduStr = test.getValue().getString(0);
+							String rapduStr = rapdu_ptr.getValue().getString(0);
 							if (rapduStr.length() != 16) {
 								// Android app service probably didn't return correct ID. Or it encountered an
 								// error.
